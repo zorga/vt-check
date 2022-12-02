@@ -38,6 +38,6 @@ python vt-check.py -i ip_list.txt
 When a file or IP address is reported as malicious by VirusTotal, its name (path) is written to the 'result.txt' file generated after execution of the script. More information on the scan(s) can be found in the generated 'info.log' file.
 In case of IP addresses checking, the whois information are written to 'whois_results.csv'.
 
-##TO-DO
+## TO-DO
 * Improve whois information parsing
 * Code cleaning
