@@ -1,4 +1,7 @@
-# Installation
+# vt-check
+Small tool to query VirusTotal for files and IP addresses reputation.
+
+## Installation
 Use the following command to create a virtual environment and install the dependencies.
 ```
 virtualenv -p /usr/bin/python3.6 vt_venv
@@ -6,9 +9,9 @@ source vt_venv/bin/activate
 python -m pip install -r requirements.txt --isolated
 ```
 
-You can add your VirusTotal API key and Proxy configuration if needed, in the vt-check.py file.
+You can add your VirusTotal API key (and Proxy configuration if needed) in the vt-check.py file.
 
-# Usage
+## Usage
 To check all the files in a directory:
 ```
 python vt-check.py -d directory
@@ -31,6 +34,10 @@ To check a list of IP addresses and get whois information:
 python vt-check.py -i ip_list.txt
 ```
 
-# Info
+## Info
 When a file or IP address is reported as malicious by VirusTotal, its name (path) is written to the 'result.txt' file generated after execution of the script. More information on the scan(s) can be found in the generated 'info.log' file.
 In case of IP addresses checking, the whois information are written to 'whois_results.csv'.
+
+##TO-DO
+* Improve whois information parsing
+* Code cleaning
