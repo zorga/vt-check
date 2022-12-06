@@ -4,9 +4,9 @@ Small tool to query VirusTotal for files and IP addresses reputation.
 ## Installation
 Use the following command to create a virtual environment and install the dependencies.
 ```
-virtualenv -p /usr/bin/python3.6 vt_venv
+python3 -m venv vt_venv
 source vt_venv/bin/activate
-python -m pip install -r requirements.txt --isolated
+python -m pip install -r requirements.txt
 ```
 
 You can add your VirusTotal API key (and Proxy configuration if needed) in the vt-check.py file.
