@@ -104,34 +104,7 @@ def vt_check_ip(ip_file, rfile):
                 else:
                     logging.info("IP address " + str(ipaddr) + " is safe for VirusTotal")
 
-                if "whois" in result["data"]["attributes"]:
-                    whois_str = result["data"]["attributes"]["whois"]
-                    extracted = False
-                    if "No match" in whois_str:
-                        logging.info("No whois information for " + str(ipaddr))
-                    else:
-                        extract = str(ipaddr) + ","
-                        if "Country:" in whois_str:
-                            extract = extract_from_whois(extract, whois_str, "country:")
-                            extracted = True
-                        elif "OriginAS:" in whois_str:
-                            extract = extract_from_whois(extract, whois_str, "OriginAS:")
-                            extracted = True
-                        elif "Organization:" in whois_str:
-                            extract = extract_from_whois(extract, whois_str, "Organization:")
-                            extracted = True
-                        else:
-                            logging.info("The whois information for " + str(ipaddr) + " doesn't have Country, OriginAS, nor Organization information")
-                    if extracted:
-                        whois_file.write(extract.rstrip(",") + "\n")
-    whois_file.close()
 
-
-def extract_from_whois(sIP):
-    obj = IPWhois(sIP)
-    result = obj.lookup_rdap()
-    return result
-                
 
 def vt_check_hash(filehash):
     '''check on VT if 'filehash' is the hash of a malicious file'''
