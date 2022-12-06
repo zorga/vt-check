@@ -14,6 +14,7 @@ import hashlib
 import time
 import logging
 from tqdm import tqdm
+from ipwhois import IPWhois
 
 
 VT_API_KEY = ''
@@ -59,12 +60,25 @@ def main():
                     logging.info("File " + str(lHash) + " is safe for VirusTotal")
 
     elif args.ipaddr_file:
-        vt_check_ip(args.ipaddr_file, result_file)
+        #vt_check_ip(args.ipaddr_file, result_file)
+        vt_check_ip_whois_test(args.ipaddr_file, result_file)
 
     else:
         print("Invalid argument")
 
     result_file.close()
+
+
+def vt_check_ip_whois_test(ip_file, rfile):
+    '''
+    function to use to test the whois queries
+    '''
+    whois_file = open("whois_results.csv", "w")
+    with open(ip_file) as f:
+        for line in tqdm(f.readlines()):
+            ip_addr = line.rstrip()
+            ret = extract_from_whois(ip_addr) 
+            print(ret)
 
 
 def vt_check_ip(ip_file, rfile):
@@ -109,16 +123,10 @@ def vt_check_ip(ip_file, rfile):
     whois_file.close()
 
 
-def extract_from_whois(extract, data, field):
-    ret = ""
-    start_index = data.lower().find(field)
-    if start_index:
-        end_index = data.find("\n", start_index)
-        result = data[start_index + len("Country:"):end_index]
-        ret = extract + result + ","
-    else:
-        logging.info("Error while extracting whois information in 'extract_from_whois' function")
-    return ret
+def extract_from_whois(sIP):
+    obj = IPWhois(sIP)
+    result = obj.lookup_rdap()
+    return result
                 
 
 def vt_check_hash(filehash):
