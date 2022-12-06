@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python3
 
 
 __author__ = 'Nicolas Ooghe'
@@ -73,13 +73,16 @@ def vt_check_ip_whois_test(ip_file, rfile):
     '''
     function to use to test the whois queries
     '''
-    whois_file = open("whois_results.txt", "w")
+    whois_fields_needed = ["asn_country_code", "asn_description", "asn", "query"]
+    whois_file = open("whois_results.csv", "w")
+    whois_file.write("IP,ASN,COUNTRY_CODE,ORGANIZATION\n")
     with open(ip_file) as f:
         for line in tqdm(f.readlines()):
             ip_addr = line.rstrip()
-            ret = extract_from_whois(ip_addr) 
-            print(ret)
-    close(whois_file)
+            dwhois = extract_from_whois(ip_addr) 
+            sOrg = dwhois["asn_description"].split(",")[0]
+            whois_file.write(dwhois["query"] + "," + dwhois["asn"] + "," + dwhois["asn_country_code"] + "," + sOrg + "\n")
+    whois_file.close()
 
 
 def vt_check_ip(ip_file, rfile):
