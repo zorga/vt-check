@@ -64,9 +64,16 @@ def main():
         vt_check_ip_whois_test(args.ipaddr_file, result_file)
 
     else:
-        print("Invalid argument")
+        parser.print_help()
+        #print("Invalid argument")
 
     result_file.close()
+
+
+def extract_from_whois(sIP):
+    obj = IPWhois(sIP)
+    ret = obj.lookup_rdap()
+    return ret
 
 
 def vt_check_ip_whois_test(ip_file, rfile):
