@@ -73,12 +73,13 @@ def vt_check_ip_whois_test(ip_file, rfile):
     '''
     function to use to test the whois queries
     '''
-    whois_file = open("whois_results.csv", "w")
+    whois_file = open("whois_results.txt", "w")
     with open(ip_file) as f:
         for line in tqdm(f.readlines()):
             ip_addr = line.rstrip()
             ret = extract_from_whois(ip_addr) 
             print(ret)
+    close(whois_file)
 
 
 def vt_check_ip(ip_file, rfile):
