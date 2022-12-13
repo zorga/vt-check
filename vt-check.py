@@ -24,14 +24,24 @@ VT_URL = "https://www.virustotal.com/api/v3/ip_addresses/"
 
 
 def proxy():
-    return {"https": PROXY, "http": PROXY}
+    proxy = get_proxy_cfg()
+    return {"https": proxy, "http": proxy}
 
 
-def load_config():
-    with open(CONFIG_FILE) as cfg:
+def get_api_key():
+    api_key = ''
+    with open(CONFIG_FILE, 'r') as cfg:
         config = json.load(cfg)
-        VT_API_KEY = config["api_key"]
-        PROXY = config["proxy"]
+        api_key = config['api_key']
+    return api_key
+
+
+def get_proxy_config():
+    proxy_cfg = ''
+    with open(CONFIG_FILE, 'r') as cfg:
+        config = json.load(cfg)
+        proxy_cfg = config['proxy']
+    return proxy_cfg
 
 
 def main():
@@ -42,12 +52,16 @@ def main():
     parser.add_argument('-i', '--ipaddr_file')
     args = parser.parse_args() 
 
-    logging.basicConfig(filename='info.log', level=logging.INFO)
-    load_config()
+    logging.basicConfig(
+        format='%(asctime)s %(levelname)-8s %(message)s',
+        filename='info.log',
+        datefmt='%Y-%m-%d %H:%M:%S',
+        level=logging.INFO)
+    vt_api_key = get_api_key()
     result_file = open('result.txt', 'w')
 
     if args.filepath:
-        vt_check(args.filepath, result_file)
+        vt_check(args.filepath, result_file, vt_api_key)
 
     elif args.directory:
         directory_path = os.fsencode(args.directory)
@@ -55,14 +69,14 @@ def main():
             filename = os.fsencode(f)
             aFilename = filename.decode("utf-8")
             full_path = str(args.directory) + "/" + str(aFilename)
-            vt_check(full_path, result_file)
+            vt_check(full_path, result_file, vt_api_key)
 
     elif args.hash_list:
         list_path = os.fsencode(args.hash_list)
         with open(list_path) as f:
             lines = [line.rstrip() for line in f]
             for lHash in tqdm(lines):
-                if vt_check_hash(lHash):
+                if vt_check_hash(lHash, vt_api_key):
                     logging.info("File " + str(lHash) + " is flagged as malicious on VirusTotal")
                     result_file.write(str(lHash) + "\n")
                 else:
@@ -70,9 +84,9 @@ def main():
 
     elif args.ipaddr_file:
         print("Checking IP addresses reputation...")
-        vt_check_ip(args.ipaddr_file, result_file)
+        vt_check_ip(args.ipaddr_file, result_file, vt_api_key)
         print("Getting WHOIS information...")
-        vt_check_ip_whois(args.ipaddr_file)
+        get_ip_whois(args.ipaddr_file)
 
     else:
         parser.print_help()
@@ -81,14 +95,19 @@ def main():
 
 
 def extract_from_whois(sIP):
+    '''
+    This function queries the whois DB for an IP address
+    arg: 'sIP' is an IPv4 address
+    '''
     obj = IPWhois(sIP)
     ret = obj.lookup_rdap()
     return ret
 
 
-def vt_check_ip_whois(ip_file):
+def get_ip_whois(ip_file):
     '''
-    function to use to test the whois queries
+    This function extracts whois information for each IP address in the IP file
+    arg: 'ip_file' is a path to a file containing one IP address per line
     '''
     whois_fields_needed = ["asn_country_code", "asn_description", "asn", "query"]
     whois_file = open("whois_results.csv", "w")
@@ -102,10 +121,14 @@ def vt_check_ip_whois(ip_file):
     whois_file.close()
 
 
-def vt_check_ip(ip_file, rfile):
+def vt_check_ip(ip_file, rfile, vt_api_key):
+    '''
+    Checks the reputation of each IP address referenced in 'ip_file' on VirusTotal
+    arg: 'ip_file' is a path to a file containing one IP address per line
+    '''
     whois_file = open("whois_results.csv", "w")
     with open(ip_file) as f:
-        headers = {"accept": "application/json", "x-apikey": VT_API_KEY}
+        headers = {"accept": "application/json", "x-apikey": vt_api_key}
         for line in tqdm(f.readlines()):
             ipaddr = line.rstrip()
             url = VT_URL + str(ipaddr)
@@ -122,10 +145,12 @@ def vt_check_ip(ip_file, rfile):
                     logging.info("IP address " + str(ipaddr) + " is safe for VirusTotal")
 
 
-
-def vt_check_hash(filehash):
-    '''check on VT if 'filehash' is the hash of a malicious file'''
-    client = vt.Client(VT_API_KEY, trust_env=True)
+def vt_check_hash(filehash, vt_api_key):
+    '''
+    Checks on VT if 'filehash' is the hash of a malicious file
+    arg: 'filehash' is a MD5, SHA1, or SHA256 hash
+    '''
+    client = vt.Client(vt_api_key, trust_env=True)
     res = False
     try:
         vtfile = client.get_object("/files/" + str(filehash))
@@ -141,11 +166,15 @@ def vt_check_hash(filehash):
     return res
 
 
-def vt_check(filepath, rfile):
+def vt_check(filepath, rfile, vt_api_key):
+    '''
+    Checks the reputation of the file at 'filepath' on VirusTotal
+    arg: filepath is the path to the file to be checked
+    '''
     with open(filepath, "rb") as f:
         data = f.read()
         md5_string = hashlib.md5(data).hexdigest()
-        if vt_check_hash(md5_string):
+        if vt_check_hash(md5_string, vt_api_key):
             logging.info("File " + str(filepath) + " is flagged as malicious on VirusTotal")
             rfile.write(str(filepath) + "\n")
         else:
