@@ -1,5 +1,8 @@
 # vt-check
 Small tool to query VirusTotal for files and IP addresses reputation.
+Tested with:
+* Python 3.8.10
+* Python 3.9.15
 
 ## Installation
 Use the following command to create a virtual environment and install the dependencies.
