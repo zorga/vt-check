@@ -137,10 +137,10 @@ def vt_check_ip(ip_file, rfile, vt_api_key, threshold):
             url = VT_IP_URL + str(ipaddr)
             response = requests.get(url, headers=headers)
             result = json.loads(response.text)
-            logging.info(result["data"]["attributes"]["last_analysis_stats"])
             if "error" in result:
                 logging.info("No result for : " + str(ipaddr))
             else:
+                logging.info(result["data"]["attributes"]["last_analysis_stats"])
                 malicious_count = result["data"]["attributes"]["last_analysis_stats"]["malicious"]
                 if malicious_count >= threshold:
                     logging.info("IP " + str(ipaddr) + " is flagged as malicious by " + str(malicious_count) + " Security Vendors")
