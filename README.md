@@ -40,8 +40,9 @@ You can also add the -w parameter if you want to get the WHOIS information on th
 python vt-check.py -i ip_list.txt [-w]
 ```
 
-To define the minimum amount of Security Vendors detections needed to flag an IP or file as malicious, use the -t option. Example:
-Default is set to 1.
+To define the minimum amount of Security Vendors detections needed to flag an IP or file as malicious, use the -t option.  
+The default threshold is 1.  
+Example:
 ```
 python vt-check.py -f sample.exe -t 4
 ```
