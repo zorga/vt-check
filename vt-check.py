@@ -18,9 +18,7 @@ from ipwhois import IPWhois
 
 
 CONFIG_FILE = "config.json"
-VT_API_KEY = ""
-PROXY = "" # Proxy format : http://user:mdp@addr:port
-VT_URL = "https://www.virustotal.com/api/v3/ip_addresses/"
+VT_IP_URL = "https://www.virustotal.com/api/v3/ip_addresses/"
 
 
 def proxy():
@@ -45,11 +43,12 @@ def get_proxy_config():
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Check files hashes on VirusTotal')
+    parser = argparse.ArgumentParser(description='Check stuff on VirusTotal')
     parser.add_argument('-f', '--filepath')
     parser.add_argument('-d', '--directory')
     parser.add_argument('-l', '--hash_list')
     parser.add_argument('-i', '--ipaddr_file')
+    parser.add_argument('-w', '--whois', action='store_true', default=False, help='Query whois DB if IP addresses')
     args = parser.parse_args() 
 
     logging.basicConfig(
@@ -85,8 +84,9 @@ def main():
     elif args.ipaddr_file:
         print("Checking IP addresses reputation...")
         vt_check_ip(args.ipaddr_file, result_file, vt_api_key)
-        print("Getting WHOIS information...")
-        get_ip_whois(args.ipaddr_file)
+        if args.whois:
+            print("Getting WHOIS information...")
+            get_ip_whois(args.ipaddr_file)
 
     else:
         parser.print_help()
@@ -131,7 +131,7 @@ def vt_check_ip(ip_file, rfile, vt_api_key):
         headers = {"accept": "application/json", "x-apikey": vt_api_key}
         for line in tqdm(f.readlines()):
             ipaddr = line.rstrip()
-            url = VT_URL + str(ipaddr)
+            url = VT_IP_URL + str(ipaddr)
             response = requests.get(url, headers=headers)
             result = json.loads(response.text)
             if "error" in result:
