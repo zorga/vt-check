@@ -9,7 +9,9 @@ source vt_venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
-You can add your VirusTotal API key (and Proxy configuration if needed) in the vt-check.py file.
+## Configuration
+You need to add your VirusTotal API key (and Proxy configuration if needed) in the 'config.json' file.
+For that, you can just copy the 'config.json.template' to 'config.json' and complete the needed information in the new file.
 
 ## Usage
 To check all the files in a directory:

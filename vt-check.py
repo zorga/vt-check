@@ -17,13 +17,21 @@ from tqdm import tqdm
 from ipwhois import IPWhois
 
 
-VT_API_KEY = ''
-PROXY = '' # Proxy format : http://user:mdp@addr:port
+CONFIG_FILE = "config.json"
+VT_API_KEY = ""
+PROXY = "" # Proxy format : http://user:mdp@addr:port
 VT_URL = "https://www.virustotal.com/api/v3/ip_addresses/"
 
 
 def proxy():
     return {"https": PROXY, "http": PROXY}
+
+
+def load_config():
+    with open(CONFIG_FILE) as cfg:
+        config = json.load(cfg)
+        VT_API_KEY = config["api_key"]
+        PROXY = config["proxy"]
 
 
 def main():
@@ -35,6 +43,7 @@ def main():
     args = parser.parse_args() 
 
     logging.basicConfig(filename='info.log', level=logging.INFO)
+    load_config()
     result_file = open('result.txt', 'w')
 
     if args.filepath:
@@ -60,12 +69,13 @@ def main():
                     logging.info("File " + str(lHash) + " is safe for VirusTotal")
 
     elif args.ipaddr_file:
-        #vt_check_ip(args.ipaddr_file, result_file)
-        vt_check_ip_whois_test(args.ipaddr_file, result_file)
+        print("Checking IP addresses reputation...")
+        vt_check_ip(args.ipaddr_file, result_file)
+        print("Getting WHOIS information...")
+        vt_check_ip_whois(args.ipaddr_file)
 
     else:
         parser.print_help()
-        #print("Invalid argument")
 
     result_file.close()
 
@@ -76,7 +86,7 @@ def extract_from_whois(sIP):
     return ret
 
 
-def vt_check_ip_whois_test(ip_file, rfile):
+def vt_check_ip_whois(ip_file):
     '''
     function to use to test the whois queries
     '''

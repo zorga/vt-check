@@ -1,4 +1,5 @@
 *.log
 *.txt
 *.csv
+*.json
 vt_venv
